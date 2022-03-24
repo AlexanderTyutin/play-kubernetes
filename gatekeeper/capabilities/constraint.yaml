@@ -1,0 +1,58 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: capabilities-demo
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    #namespaces:
+    #  - "default"
+  parameters:
+    excludedPods:
+      - "kube-system;coredns-64897985d-"
+      - "test;capable-pod-allowed"
+    allowedCapabilities:
+      - AUDIT_READ           # This capability allows a process to read the audit log using a network multicast link. This capability may be required by processes such as elasticsearch and similar; it is not recommended to remove it unless without investigating the impact on related processes.
+      - IPC_LOCK             # Allows a process to lock the allotted virtual memory for that process (i.e. prevent virtual memory from being paged). This option should be allowed (not dropped) to prevent a per application SCC.
+      - LEASE                # Allow a process to establish lease on open file descriptors for example: file locks, flags etc. This capability should not dropped to allow process to manipulate files.
+      - LINUX_IMMUTABLE      # This capability should not dropped to allow process to lock files.
+      - NET_BIND_SERVICE     # Allow a process to bind to internet domain privileged ports. This capability should not dropped as some processes bind to port 80 or 443 inside containers.
+      - NET_BROADCAST        # Allow a process to make network broadcasts and multicasts. This capability should not dropped as some processes require multicasts.
+    requiredDropCapabilities:
+      - AUDIT_CONTROL        # This capability allows a process to change kernel auditing rules for  kernel audit system retrieve the kernel auditing status and rules. This capability can be safely dropped.
+      - AUDIT_WRITE          # This capability allows a process to write to the node's audit system. Processes running inside containers should avoid accessing the node’s kernel.
+      - BLOCK_SUSPEND        # This capability allows a process disable suspend mode in a linux system. Although Kubernetes nodes should never go into suspend mode – this capability should be blocked.
+      - BPF                  # Allows a process to perform BPF (Berkley packet filtering) operations. This capability allows access to to BPF (if exists) and should be disabled.
+      - CHOWN                # Allows a process to change file and directory owner UID and GID. Processes running inside containers generally should not be allowed to change file system ownership. This should be disabled ONLY after verifying that all running Pods are not performing file system ownership changes either in a run script or during normal operation.
+      - DAC_OVERRIDE         # Allows a process to override discretionary access control. Processes may have the ability to change linux ACLs, this is highly discouraged and should be avoided.
+      - DAC_READ_SEARCH      # Allows a process to override discretionary access control. Look DAC_OVERRIDE
+      - FOWNER               # Bypass UID based permissions (e.g. chmod, utime, ...). This option should be dropped (disabled) on containers as it may be used to perform changes to the container’s filesystem and used by stealth techniques to hide filesystem changes to containers.
+      - FSETID               # Allows a process to run as setuid or setgid elevated permissions. This option should be dropped (disabled) – allowing it enables a process to perform tasks (run executables) with elevated permissions.
+      - IPC_OWNER            # Allows a process to bypass IPC permission check. This capability should be dropped as it allows a process to access sensitive information and even intervene in other process’ System V objects.
+      - KILL                 # Allows a process to send signals to a process bypassing permission checks. This capability should be dropped as it allows a process send signals to other processes and devices bypassing permission checks.
+      - MAC_ADMIN            # Allow a process to change MAC (Mandatory Access control) of the Smack Linux Security Module (LSM). This capability should be dropped to deny a process from changing mandatory access control.
+      - MAC_OVERRIDE         # Allow a process to override MAC (Mandatory Access control) of the Smack Linux Security Module (LSM). This capability should be dropped to deny a process from changing mandatory access control.
+      - MKNOD                # Allow a process to create special files (devices, sockets ...). This capability should be dropped to deny a process creating device .
+      - NET_ADMIN            # Allow a process to change network configuration. This capability should be dropped to deny a process from changing network configurations.
+      - NET_RAW              # Allow a process to craft ip packets and send them (including icmp). On development environments it is recommended to keep this capability for diagnostics purposes. On production systems this capability should be dropped to prevent internal network attacks (between containers).
+      - PERFMON              # Employ performance monitoring mechanisms (BPF, kernel perf_event_open). This capability should be disabled to prevent direct access to the kernel monitoring. Intense performance monitoring can slow down system operation and significantly increase context switches.
+      - SETGID               # Manipulate GID (in the container namespace). This capability should be disabled to prevent processes from changing GIDs inside containers.
+      - SETFCAP              # This capability allows a process to set arbitrary capabilities on a file. This capability should be disabled.
+      - SETPCAP              # This capability adds or drops capabilities to threads. This capability should be disabled.
+      - SETUID               # This capability allows a process to add gids and make arbitrary manipulation to UIDs. This capability should be disabled to prevent processes from changing UIDs inside containers.
+      - SYS_ADMIN            # This capability allows various highly elevated capabilities to a process. This capability should be disabled.
+      - SYS_BOOT             # This capability allows a process to use kexec_load or reboot. This capability should be disabled communicating to these functions may compromise the node.
+      - SYS_CHROOT           # This capability allows a process perform a chroot action. This capability should be disabled. This capability may allow a process to change between mount points on a node.
+      - SYS_MODULE           # A process can load an unload kernel modules and potentially impact OS stability and or compromise OS security. This capability should be disabled.
+      - SYS_NICE             # Lower a process nice (priority), cpu affinity, real time policies , IO scheduling policies. This capability should be disabled. To minimize the ability of a process running inside a container to impact node functionality and stability.
+      - SYS_PACCT            # Allows a process to use kernel process accounting. Allowing a process to use kernel process accounting can expose dangerous information to an attacker (running UID, commands being run, CPU time etc. This capability should be disabled to prevent divulging information to potential attacker and/or allow an attacker to overload the system.
+      - SYS_PTRACE           # Allows a process to trace other processes and get information about process actions, transfer data to a and from memory. This capability should be disabled as it has the potential to load the system (if several processes are traced) and it may also expose dangerous information to a potential attacker about how the process running inside a container is operating.
+      - SYS_RAWIO           # Allows access to /proc/kcore, IO ports privilege level (IOPL) IO ports permission level , cpu registers (MSR), direct memory access, direct IO device access etc. This capability should be disabled, direct access to IO devices should not be allowed for processes running inside containers.
+      - SYS_RESOURCE        # Allows a process to override disk quota, increase resource limits, no. of process limit, override the number of consoles available, bypass the limit of inflight file descriptors when passing a file to another process, override the maximum pipe buffer, set oom_score_sdj etc. This capability should be disabled as to prevent a process inside a container from affecting other containers/processes.
+      - SYS_TIME            # Allows a process to set system time and RTC time. This capability should be disabled. Any time conversion inside a container should be done by the application as to conform to the “deploy anytime anywhere” methodology in which a container may be deployed in different environments and is still required to function properly.
+      - SYS_TTY_CONFIG      # Allows a process to perform privileged operations on virtual terminals (using ioctl). This capability should be disabled. Access to the tty from inside a container is highly discouraged, it may also be used to exploit the running process(es)  inside that container it may be used to inject data into the terminal, set window size, redirecting console output etc.
+      - SYSLOG              # Perform syslog privileged operations, expose kernel data inside the container. This capability should be disabled. Changing syslog configuration should not be done from inside a container.
+      - WAKE_ALARM          # Set kernel timers to wake up the system. This capability should be disabled. The kernel timers should be accessible from inside containers.
+    exemptImages: []

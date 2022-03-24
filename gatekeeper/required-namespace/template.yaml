@@ -1,0 +1,55 @@
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequirenamespace
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequireNamespace
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            deniedNamespaces:
+              type: array
+              items:
+                type: string
+            excludedPods:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequirenamespace
+       
+        get_pod_name(object) = name{
+          # Use name for exclusions if generateName does not exists
+          not object.metadata.generateName
+          name := object.metadata.name
+        }
+
+        get_pod_name(object) = name{
+          # Use generateName for exclusions if exists
+          name := object.metadata.generateName
+        }
+
+        is_pod_excluded(object, exclusions) = result{
+          pod := concat("!", [get_pod_name(object), ""])
+          excluded_pods := concat("!", array.concat(exclusions, [""]))
+          result := contains(excluded_pods, pod)
+        }
+
+        is_ns_denied(object, inclusions) = result{
+          ns := concat("!", [object.metadata.namespace, ""])
+          included_ns := concat("!", array.concat(inclusions, [""]))
+          result := contains(included_ns, ns)
+        }
+
+        violation[{"msg": msg}]{
+          is_ns_denied(input.review.object, input.parameters.deniedNamespaces)
+          not is_pod_excluded(input.review.object, input.parameters.excludedPods)
+
+          msg := sprintf("Namespace %v is denied.", [input.review.object.metadata.namespace])
+        }

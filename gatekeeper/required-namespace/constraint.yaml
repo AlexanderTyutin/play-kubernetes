@@ -1,0 +1,24 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequireNamespace
+metadata:
+  name: pod-must-have-namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    deniedNamespaces:
+      - "default"
+      - "kube-system"
+    excludedPods: 
+      - "default;test-exclusion"
+      - "kube-system;kube-apiserver-minikube"
+      - "kube-system;kube-controller-manager-minikube"
+      - "kube-system;kube-proxy-"
+      - "kube-system;kube-scheduler-minikube"
+      - "kube-system;storage-provisioner"
+      - "kube-system;etcd-minikube"
+      - "kube-system;coredns-64897985d-"
+      - "gatekeeper-system;gatekeeper-audit-788b847c76-"
+      - "gatekeeper-system;gatekeeper-controller-manager-7d689d74bb-"

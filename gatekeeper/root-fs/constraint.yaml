@@ -1,0 +1,18 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPReadOnlyRootFilesystem
+metadata:
+  name: psp-readonlyrootfilesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    excludedPods:
+      - "kube-system;etcd-minikube"
+      - "kube-system;kube-api-server-minikube"
+      - "kube-system;kube-proxy-"
+      - "kube-system;kube-scheduler-minikube"
+      - "kube-system;storage-provisioner"
+      - "test;root-fs-pod-allowed"
+    #exemptImages: ["k8s.gcr.io/etcd:*", "k8s.gcr.io/kube-apiserver:*", "k8s.gcr.io/kube-controller-manager:*", "k8s.gcr.io/kube-proxy:*", "k8s.gcr.io/kube-scheduler:*", "gcr.io/k8s-minikube/storage-provisioner:*"]
