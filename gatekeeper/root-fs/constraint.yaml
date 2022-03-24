@@ -9,10 +9,12 @@ spec:
         kinds: ["Pod"]
   parameters:
     excludedPods:
-      - "kube-system;etcd-minikube"
-      - "kube-system;kube-api-server-minikube"
-      - "kube-system;kube-proxy-"
-      - "kube-system;kube-scheduler-minikube"
-      - "kube-system;storage-provisioner"
       - "test;root-fs-pod-allowed"
+      - "kube-system;coredns-64897985d-" # has root fs by default
+      - "kube-system;etcd-minikube" # has root fs by default
+      - "kube-system;kube-apiserver-minikube" # has root fs by default
+      - "kube-system;kube-controller-manager-minikube" # has root fs by default
+      - "kube-system;kube-proxy-" # has root fs by default
+      - "kube-system;kube-scheduler-minikube" # has root fs by default
+      - "kube-system;storage-provisioner" # has root fs by default
     #exemptImages: ["k8s.gcr.io/etcd:*", "k8s.gcr.io/kube-apiserver:*", "k8s.gcr.io/kube-controller-manager:*", "k8s.gcr.io/kube-proxy:*", "k8s.gcr.io/kube-scheduler:*", "gcr.io/k8s-minikube/storage-provisioner:*"]

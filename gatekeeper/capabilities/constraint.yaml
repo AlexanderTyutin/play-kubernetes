@@ -11,8 +11,16 @@ spec:
     #  - "default"
   parameters:
     excludedPods:
-      - "kube-system;coredns-64897985d-"
-      - "test;capable-pod-allowed"
+      - "kube-system;coredns-64897985d-" # has denied capabilities by default
+      - "kube-system;etcd-minikube" # doesn't drop capabilities
+      - "kube-system;kube-apiserver-minikube" # doesn't drop capabilities
+      - "kube-system;kube-controller-manager-minikube" # doesn't drop capabilities
+      - "kube-system;kube-proxy-" # doesn't drop capabilities
+      - "kube-system;kube-scheduler-minikube" # doesn't drop capabilities
+      - "kube-system;storage-provisioner" # doesn't drop capabilities
+      - "gatekeeper-system;gatekeeper-audit-788b847c76-" # doesn't drop capabilities
+      - "gatekeeper-system;gatekeeper-controller-manager-7d689d74bb-" # doesn't drop capabilities
+      - "test;capable-pod-allowed" # test pod
     allowedCapabilities:
       - AUDIT_READ           # This capability allows a process to read the audit log using a network multicast link. This capability may be required by processes such as elasticsearch and similar; it is not recommended to remove it unless without investigating the impact on related processes.
       - IPC_LOCK             # Allows a process to lock the allotted virtual memory for that process (i.e. prevent virtual memory from being paged). This option should be allowed (not dropped) to prevent a per application SCC.

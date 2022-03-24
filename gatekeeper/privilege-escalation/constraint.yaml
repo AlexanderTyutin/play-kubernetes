@@ -11,3 +11,10 @@ spec:
     exemptImages: []
     excludedPods:
       - "escalate-pod-allowed"
+      - "kube-system;coredns-64897985d-" # doesn't deny privilege escalation by default
+      - "kube-system;etcd-minikube" # doesn't deny privilege escalation by default
+      - "kube-system;kube-apiserver-minikube" # doesn't deny privilege escalation by default
+      - "kube-system;kube-controller-manager-minikube" # doesn't deny privilege escalation by default
+      - "kube-system;kube-proxy-" # doesn't deny privilege escalation by default
+      - "kube-system;kube-scheduler-minikube" # doesn't deny privilege escalation by default
+      - "kube-system;storage-provisioner" # doesn't deny privilege escalation by default
